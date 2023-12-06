@@ -5,7 +5,6 @@ import (
 	"github.com/MatiasGalli/MS_Product/models"
 )
 
-// CreateProduct creates a product
 func CreateProduct(product models.Product) (models.Product, error) {
 	result := db.DB.Create(&product)
 	return product, result.Error

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/MatiasGalli/MS_Product/config"
 	"github.com/MatiasGalli/MS_Product/internal"
@@ -62,7 +63,7 @@ func registerConsumer(channel *amqp.Channel, queue amqp.Queue) <-chan amqp.Deliv
 }
 
 func main() {
-	fmt.Println("Tasks MS starting...")
+	fmt.Println("Product MS starting...")
 
 	godotenv.Load()
 	fmt.Println("Loaded env variables...")
@@ -85,6 +86,15 @@ func main() {
 			internal.Handler(d, channel)
 		}
 	}()
+
+	http.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {
+		d := <-msgs
+		internal.Handler(d, channel)
+		w.WriteHeader(http.StatusOK)
+	})
+
+	log.Println("Starting HTTP server on port 8080...")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
