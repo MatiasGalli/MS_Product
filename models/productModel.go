@@ -9,7 +9,6 @@ type Product struct {
 	gorm.Model
 
 	ID          uuid.UUID `json:"id" gorm:"primary_key"`
-	CategoryID  string    `json:"category_id"`
 	Name        string    `json:"name"`
 	Price       float32   `json:"price"`
 	Stock       int       `json:"stock"`
@@ -17,6 +16,7 @@ type Product struct {
 	Offer       bool      `json:"offer"`
 	Promotion   float32   `json:"promotion"`
 	Image       string    `json:"image"`
+	CategoryID  string    `json:"category_id"`
 
 	Category Category `json:"category" gorm:"foreignKey:CategoryID"`
 }
