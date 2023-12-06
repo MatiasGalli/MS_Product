@@ -17,4 +17,6 @@ type Product struct {
 	Offer       bool      `json:"offer"`
 	Promotion   float32   `json:"promotion"`
 	Image       string    `json:"image"`
+
+	Category Category `json:"category" gorm:"foreignKey:CategoryID"`
 }

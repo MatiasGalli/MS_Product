@@ -27,7 +27,7 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 
 	actionType := d.Type
 	switch actionType {
-	case "create_product":
+	case "CREATE_PRODUCT":
 		log.Println("Creating product")
 
 		var product models.Product
@@ -50,7 +50,7 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 				Data:    productJSON,
 			}
 		}
-	case "get_products":
+	case "GET_PRODUCTS":
 		log.Println("Getting products")
 
 		product, err := controllers.GetProducts()
@@ -64,7 +64,7 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 			Data:    productsJSON,
 		}
 
-	case "get_product":
+	case "GET_PRODUCT":
 		log.Println("Getting product")
 		var data struct {
 			ID string `json:"id"`
@@ -83,6 +83,64 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 			Message: "Product retrieved successfully",
 			Data:    productJSON,
 		}
+
+	case "CREATE_CATEGORY":
+		log.Println("Creating category")
+		var category models.Category
+		err := json.Unmarshal(d.Body, &category)
+		failOnError(err, "Failed to unmarshal category")
+		categoryJSON, err := json.Marshal(category)
+		failOnError(err, "Failed to marshal category")
+
+		_, err = controllers.CreateCategory(category)
+		if err != nil {
+			response = models.Response{
+				Success: "error",
+				Message: "Failed to create category",
+				Data:    []byte(err.Error()),
+			}
+		} else {
+			response = models.Response{
+				Success: "success",
+				Message: "Category created successfully",
+				Data:    categoryJSON,
+			}
+		}
+
+	case "GET_CATEGORIES":
+		log.Println("Getting categories")
+
+		category, err := controllers.GetCategories()
+		failOnError(err, "Failed to get category")
+		categoriesJSON, err := json.Marshal(category)
+		failOnError(err, "Failed to marshal category")
+
+		response = models.Response{
+			Success: "success",
+			Message: "Category retrieved successfully",
+			Data:    categoriesJSON,
+		}
+
+	case "GET_CATEGORY":
+		log.Println("Getting category")
+		var data struct {
+			ID string `json:"id"`
+		}
+
+		err := json.Unmarshal(d.Body, &data)
+		failOnError(err, "Failed to unmarshal category")
+
+		category, err := controllers.GetCategory(data.ID)
+		failOnError(err, "Failed to get category")
+		categoryJSON, err := json.Marshal(category)
+		failOnError(err, "Failed to marshal category")
+
+		response = models.Response{
+			Success: "success",
+			Message: "Category retrieved successfully",
+			Data:    categoryJSON,
+		}
+
 	}
 
 	responseJSON, err := json.Marshal(response)
@@ -101,4 +159,5 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 	failOnError(err, "Failed to publish a message")
 
 	d.Ack(false)
+
 }

@@ -3,9 +3,19 @@ package controllers
 import (
 	db "github.com/MatiasGalli/MS_Product/config"
 	"github.com/MatiasGalli/MS_Product/models"
+	"gorm.io/gorm"
 )
 
 func CreateProduct(product models.Product) (models.Product, error) {
+	if product.CategoryID == "" {
+		var category models.Category
+		result := db.DB.First(&category, "id = ?", product.CategoryID)
+
+		if result.RowsAffected == 0 {
+			return models.Product{}, gorm.ErrRecordNotFound
+		}
+	}
+
 	result := db.DB.Create(&product)
 	return product, result.Error
 }
