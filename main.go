@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/MatiasGalli/MS_Product/config"
 	"github.com/MatiasGalli/MS_Product/internal"
@@ -28,7 +27,7 @@ func getChannel() *amqp.Channel {
 
 func declareQueue(channel *amqp.Channel) amqp.Queue {
 	queue, err := channel.QueueDeclare(
-		"ms-product",
+		"pruducts_queue",
 		false,
 		false,
 		false,
@@ -86,16 +85,7 @@ func main() {
 			internal.Handler(d, channel)
 		}
 	}()
-
-	http.HandleFunc("/messages", func(w http.ResponseWriter, r *http.Request) {
-		d := <-msgs
-		internal.Handler(d, channel)
-		w.WriteHeader(http.StatusOK)
-	})
-
-	log.Println("Starting HTTP server on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	fmt.Println("Product MS started...")
+	log.Print(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
