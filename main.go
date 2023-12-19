@@ -27,7 +27,7 @@ func getChannel() *amqp.Channel {
 
 func declareQueue(channel *amqp.Channel) amqp.Queue {
 	queue, err := channel.QueueDeclare(
-		"products_queue",
+		"product_queue",
 		false,
 		false,
 		false,
