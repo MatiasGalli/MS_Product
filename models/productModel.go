@@ -2,12 +2,9 @@ package models
 
 import (
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Product struct {
-	gorm.Model
-
 	ID          uuid.UUID `json:"id" gorm:"primary_key"`
 	Name        string    `json:"name"`
 	Price       float32   `json:"price"`
