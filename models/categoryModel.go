@@ -5,6 +5,6 @@ import (
 )
 
 type Category struct {
-	ID   uuid.UUID `json:"id" gorm:"primary_key"`
-	Name string    `json:"name"`
+	ID   uuid.UUID `gorm:"primary_key" json:"id"`
+	Name string    `gorm:"not null;" json:"name"`
 }

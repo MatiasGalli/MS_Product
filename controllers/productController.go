@@ -7,7 +7,7 @@ import (
 )
 
 func CreateProduct(product models.Product) (models.Product, error) {
-	if product.CategoryID == "" {
+	if product.CategoryID != "" {
 		var category models.Category
 		result := db.DB.First(&category, "id = ?", product.CategoryID)
 
