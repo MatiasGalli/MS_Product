@@ -65,7 +65,7 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 	case "GET_PRODUCT":
 		log.Println("Getting product")
 		var data struct {
-			ID string `json:"id"`
+			ID int `json:"id"`
 		}
 
 		err := json.Unmarshal(d.Body, &data)
@@ -121,7 +121,7 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 	case "GET_CATEGORY":
 		log.Println("Getting category")
 		var data struct {
-			ID string `json:"id"`
+			ID int `json:"id"`
 		}
 
 		err := json.Unmarshal(d.Body, &data)

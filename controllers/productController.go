@@ -19,7 +19,7 @@ func GetProducts() ([]models.Product, error) {
 	return products, result.Error
 }
 
-func GetProduct(productID string) (models.Product, error) {
+func GetProduct(productID int) (models.Product, error) {
 	var product models.Product
 	result := db.DB.Where(&product, "id = ?", productID)
 	return product, result.Error
@@ -30,7 +30,7 @@ func UpdateProduct(productID, product models.Product) (models.Product, error) {
 	return product, result.Error
 }
 
-func DeleteProduct(productID string) error {
+func DeleteProduct(productID int) error {
 	var product models.Product
 	result := db.DB.Delete(&product, "id = ?", productID)
 	return result.Error

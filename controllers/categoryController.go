@@ -16,18 +16,18 @@ func GetCategories() ([]models.Category, error) {
 	return categories, result.Error
 }
 
-func GetCategory(categoryID string) (models.Category, error) {
+func GetCategory(categoryID int) (models.Category, error) {
 	var category models.Category
 	result := db.DB.Where(&category, "id = ?", categoryID)
 	return category, result.Error
 }
 
-func UpdateCategory(categoryID string, category models.Category) (models.Category, error) {
+func UpdateCategory(categoryID int, category models.Category) (models.Category, error) {
 	result := db.DB.Save(&category).Where("id = ?", categoryID)
 	return category, result.Error
 }
 
-func DeleteCategory(categoryID string) error {
+func DeleteCategory(categoryID int) error {
 	var category models.Category
 	result := db.DB.Delete(&category, "id = ?", categoryID)
 	return result.Error
