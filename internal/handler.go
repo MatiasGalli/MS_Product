@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -10,8 +11,6 @@ import (
 	"github.com/MatiasGalli/MS_Product/models"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-// Handler is a struct that contains the methods to handle the messages
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -23,33 +22,32 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var response models.Response
+	var mq models.MessageQueue
+	err := json.Unmarshal(d.Body, &mq)
+	failOnError(err, "Failed to unmarshal body")
+	var response interface{}
 
-	actionType := d.Type
+	actionType := mq.Pattern
+	log.Println("Action type: ", actionType)
 	switch actionType {
 	case "CREATE_PRODUCT":
+		fmt.Print("CREATE_PRODUCT")
 		log.Println("Creating product")
 
-		var product models.Product
-		err := json.Unmarshal(d.Body, &product)
-		failOnError(err, "Failed to unmarshal product")
-		productJSON, err := json.Marshal(product)
-		failOnError(err, "Failed to marshal product")
+		productData, err := json.Marshal(mq.Data)
+		failOnError(err, "Failed to marshal product data")
 
-		_, err = controllers.CreateProduct(product)
+		var product models.Product
+		err = json.Unmarshal(productData, &product)
+		failOnError(err, "Failed to unmarshal product")
+
+		createdProduct, err := controllers.CreateProduct(product)
 		if err != nil {
-			response = models.Response{
-				Success: "error",
-				Message: "Failed to create product",
-				Data:    []byte(err.Error()),
-			}
+			response = models.Product{}
 		} else {
-			response = models.Response{
-				Success: "success",
-				Message: "Product created successfully",
-				Data:    productJSON,
-			}
+			response = createdProduct
 		}
+
 	case "GET_PRODUCTS":
 		log.Println("Getting products")
 
@@ -86,25 +84,24 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 
 	case "CREATE_CATEGORY":
 		log.Println("Creating category")
-		var category models.Category
-		err := json.Unmarshal(d.Body, &category)
-		failOnError(err, "Failed to unmarshal category")
-		categoryJSON, err := json.Marshal(category)
-		failOnError(err, "Failed to marshal category")
 
-		_, err = controllers.CreateCategory(category)
+		// Convierte el mapa mq.Data en un []byte utilizando json.Marshal
+		categoryData, err := json.Marshal(mq.Data)
+		failOnError(err, "Failed to marshal category data")
+
+		// Deserializa los datos JSON en un models.Category
+		var category models.Category
+		err = json.Unmarshal(categoryData, &category)
+		failOnError(err, "Failed to unmarshal category")
+
+		// Llama a la función CreateCategory con la categoría deserializada
+		createdCategory, err := controllers.CreateCategory(category)
 		if err != nil {
-			response = models.Response{
-				Success: "error",
-				Message: "Failed to create category",
-				Data:    []byte(err.Error()),
-			}
+			response = models.Category{}
+
 		} else {
-			response = models.Response{
-				Success: "success",
-				Message: "Category created successfully",
-				Data:    categoryJSON,
-			}
+
+			response = createdCategory
 		}
 
 	case "GET_CATEGORIES":

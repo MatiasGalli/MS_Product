@@ -1,24 +1,18 @@
 package controllers
 
 import (
+	"fmt"
+
 	db "github.com/MatiasGalli/MS_Product/config"
 	"github.com/MatiasGalli/MS_Product/models"
-	"gorm.io/gorm"
 )
 
 func CreateProduct(product models.Product) (models.Product, error) {
-	if product.CategoryID != "" {
-		var category models.Category
-		result := db.DB.First(&category, "id = ?", product.CategoryID)
-
-		if result.RowsAffected == 0 {
-			return models.Product{}, gorm.ErrRecordNotFound
-		}
-	}
-
 	result := db.DB.Create(&product)
+	fmt.Println(result.Error)
 	return product, result.Error
 }
+
 func GetProducts() ([]models.Product, error) {
 	var products []models.Product
 	result := db.DB.Find(&products)

@@ -30,6 +30,18 @@ func SetupDatabase() {
 
 }
 
-func autoMigrate(connection *gorm.DB) {
-	connection.Debug().AutoMigrate(&models.Product{})
+func autoMigrate(connection *gorm.DB) error {
+
+	modelsToMigrate := []interface{}{
+		&models.Product{},
+		&models.Category{},
+	}
+
+	if err := connection.AutoMigrate(modelsToMigrate...); err != nil {
+		fmt.Println("Error during AutoMigrate:", err)
+		return err
+	}
+
+	fmt.Println("AutoMigrate completed successfully")
+	return nil
 }
