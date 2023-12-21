@@ -53,48 +53,23 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 
 		product, err := controllers.GetProducts()
 		failOnError(err, "Failed to get products")
-		productsJSON, err := json.Marshal(product)
-		failOnError(err, "Failed to marshal products")
 
-		response = models.Response{
-			Success: "success",
-			Message: "Products retrieved successfully",
-			Data:    productsJSON,
-		}
-
-	case "GET_PRODUCT":
-		log.Println("Getting product")
-		var data struct {
-			ID int `json:"id"`
-		}
-
-		err := json.Unmarshal(d.Body, &data)
-		failOnError(err, "Failed to unmarshal product")
-
-		product, err := controllers.GetProduct(data.ID)
-		failOnError(err, "Failed to get product")
-		productJSON, err := json.Marshal(product)
-		failOnError(err, "Failed to marshal product")
-
-		response = models.Response{
-			Success: "success",
-			Message: "Product retrieved successfully",
-			Data:    productJSON,
+		if err != nil {
+			response = models.Product{}
+		} else {
+			response = product
 		}
 
 	case "CREATE_CATEGORY":
 		log.Println("Creating category")
 
-		// Convierte el mapa mq.Data en un []byte utilizando json.Marshal
 		categoryData, err := json.Marshal(mq.Data)
 		failOnError(err, "Failed to marshal category data")
 
-		// Deserializa los datos JSON en un models.Category
 		var category models.Category
 		err = json.Unmarshal(categoryData, &category)
 		failOnError(err, "Failed to unmarshal category")
 
-		// Llama a la función CreateCategory con la categoría deserializada
 		createdCategory, err := controllers.CreateCategory(category)
 		if err != nil {
 			response = models.Category{}
@@ -109,33 +84,11 @@ func Handler(d amqp.Delivery, channel *amqp.Channel) {
 
 		category, err := controllers.GetCategories()
 		failOnError(err, "Failed to get category")
-		categoriesJSON, err := json.Marshal(category)
-		failOnError(err, "Failed to marshal category")
 
-		response = models.Response{
-			Success: "success",
-			Message: "Category retrieved successfully",
-			Data:    categoriesJSON,
-		}
-
-	case "GET_CATEGORY":
-		log.Println("Getting category")
-		var data struct {
-			ID int `json:"id"`
-		}
-
-		err := json.Unmarshal(d.Body, &data)
-		failOnError(err, "Failed to unmarshal category")
-
-		category, err := controllers.GetCategory(data.ID)
-		failOnError(err, "Failed to get category")
-		categoryJSON, err := json.Marshal(category)
-		failOnError(err, "Failed to marshal category")
-
-		response = models.Response{
-			Success: "success",
-			Message: "Category retrieved successfully",
-			Data:    categoryJSON,
+		if err != nil {
+			response = models.Category{}
+		} else {
+			response = category
 		}
 
 	}
